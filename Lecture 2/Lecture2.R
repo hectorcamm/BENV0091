@@ -67,5 +67,14 @@ ggplot()+
   geom_bar(aes(x = province_territory, y = turbine_rated_capacity_k_w), stat = "identity")
 
 
-colnames(wind_turbines)
+wind_turbines %>%
+  #mutate(province_territory = as.factor(province_territory))%>%
+  mutate(province_territory = fct_rev(fct_infreq(province_territory)))%>%
+  ggplot()+
+  geom_bar(aes(x = province_territory))
 
+wind_turbines  %>%
+  ggplot()+
+  geom_bar(aes(x = province_territory, fill = manufacturer), position = "stack")
+  
+colnames(wind_turbines)
