@@ -50,6 +50,14 @@ mpg%>%
 file_path <- ("data/beis_headcount/")
 files <- list.files(file_path)
 
+all_df  <- tibble()
 for (f in files) {
   df  <- read.csv(file.path(file_path,f))
+  all_df  <- all_df %>% bind_rows(df)
 }
+
+wind_turbines  <- read.csv("data/canada_wind_turbines.csv")
+colnames(wind_turbines)
+
+ggplot(wind_turbines)+
+  geom_point(aes(x = rotor_diameter_m, y = turbine_rated_capacity_k_w))
