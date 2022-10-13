@@ -43,3 +43,13 @@ if(13.7 %% 1 != 0){
   print("even")
 } 
 
+
+mpg%>%
+  mutate(model = ifelse(manufacturer == "audi", "German","notaudi"))
+
+file_path <- ("data/beis_headcount/")
+files <- list.files(file_path)
+
+for (f in files) {
+  df  <- read.csv(file.path(file_path,f))
+}
