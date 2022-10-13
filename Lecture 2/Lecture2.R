@@ -60,4 +60,12 @@ wind_turbines  <- read.csv("data/canada_wind_turbines.csv")
 colnames(wind_turbines)
 
 ggplot(wind_turbines)+
-  geom_point(aes(x = rotor_diameter_m, y = turbine_rated_capacity_k_w))
+  geom_point(aes(x = rotor_diameter_m, y = turbine_rated_capacity_k_w, color = manufacturer, size = 0.3, alpha = 0.7))
+
+wind_turbines%>%
+ggplot()+
+  geom_bar(aes(x = province_territory, y = turbine_rated_capacity_k_w), stat = "identity")
+
+
+colnames(wind_turbines)
+
