@@ -12,3 +12,11 @@ iqr <- function(v){
 }
 
 iqr(mpg$hwy)
+
+
+if(13 %% 2 != 0 ){
+  print("odd")
+} else{
+  print("even")
+  
+}
