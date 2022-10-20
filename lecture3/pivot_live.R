@@ -103,7 +103,7 @@ longer %>%
 # Exploratory Data analysis -----------------------------------------------
 
 df<-mpg %>% 
-  select(hwy,displ,cyl,drv)
+  select(hwy,displ,class,cyl,drv)
 
 
 library(broom)
@@ -113,8 +113,6 @@ df <- mpg %>%
   select(hwy, displ, cyl, drv, class) %>%
   mutate_if(is.character, as.factor) # Convert the character variables to factors
 
-any(is.na(mpg))
-
 ### Splitting into train and test sets
 
 set.seed(123)
@@ -123,6 +121,31 @@ split<-sample.split(df$hwy,0.75) # '1:nrow(df)' rempresents a vector
 #  'df$hwy' would also work
 train_data <-subset(df,split==TRUE)       #  Take 75% of the rows from df
 test_data <-subset(df,split==FALSE)       # All rows in df that are NOT in train
+
+
+### Some exploratory analysis
+
+##### Categorical variables with boxplot
+
+plot1<-df %>% 
+  pivot_longer(drv:class) %>%
+  ggplot() + 
+  geom_boxplot(aes(x = value, y = hwy)) + 
+  facet_wrap(~ name, scales = 'free') + 
+  coord_flip()
+
+##### Continuous variables with hexplot
+plot2<-df %>% 
+  pivot_longer(displ:cyl) %>%
+  ggplot() + 
+  geom_hex(aes(x = value, y = hwy)) + 
+  facet_wrap(~ name, scales = 'free')+
+  theme(legend.position = "left")
+
+library(gridExtra)
+grid.arrange(plot1,plot2)
+
+
 
 
 
