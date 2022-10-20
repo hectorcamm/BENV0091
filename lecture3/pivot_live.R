@@ -167,15 +167,24 @@ dt <- rpart(hwy ~ ., data = train_data,
 
 rpart.plot(dt)
 
-predictions<-train_data %>% 
+### Predictions on training set
+train <- train_data %>% 
   mutate(linear_model = predict(linear_model, newdata = train_data),
          decision_tree = predict(dt, newdata = train_data)) %>% 
   pivot_longer(linear_model:decision_tree,
                names_to = 'model', 
                values_to = 'predicted') 
 
+### Add residuals 
+train <- train %>% 
+  mutate(residual = predicted - hwy)
 
-
+### Plots residuals for training set 
+train %>% 
+  ggplot(aes(x = hwy, y = residual)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm') +  
+  facet_wrap(~model)
 
 
 
