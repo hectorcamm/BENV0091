@@ -146,15 +146,33 @@ library(gridExtra)
 grid.arrange(plot1,plot2)
 
 
+### Linear model fitting
+# Fit a linear model: predict hwy with all other variables
+linear_model <- lm(hwy ~ ., data = train_data)
+
+summary(linear_model)
+broom::tidy(linear_model)
 
 
+### Decision tree fitting
+library(rpart)
+library(rpart.plot)
+
+# Fit a decision tree: predict hwy with all other variables
+dt <- rpart(hwy ~ ., data = train_data, 
+            minsplit = 10,
+            minbucket = 2,
+            cp = 0.01)
 
 
+rpart.plot(dt)
 
-
-
-
-
+predictions<-train_data %>% 
+  mutate(linear_model = predict(linear_model, newdata = train_data),
+         decision_tree = predict(dt, newdata = train_data)) %>% 
+  pivot_longer(linear_model:decision_tree,
+               names_to = 'model', 
+               values_to = 'predicted') 
 
 
 
