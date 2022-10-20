@@ -188,9 +188,26 @@ train %>%
 
 
 
+### Predictions on test set
+test <- test_data %>% 
+  mutate(linear_model = predict(linear_model, newdata = test_data),
+         decision_tree = predict(dt, newdata = test_data)) %>% 
+  pivot_longer(linear_model:decision_tree,
+               names_to = 'model', 
+               values_to = 'predicted') 
 
 
 
+### Predicted vs. actual
+test %>% 
+  ggplot(aes(x = hwy, y = predicted)) + 
+  geom_point() +
+  facet_wrap(~model) + 
+  geom_abline(slope = 1, intercept = 0, color = 'gray50')
+
+test %>% 
+  group_by(model,class) %>% 
+  summarise(Sum=sum(cyl))
 
 
 
