@@ -1,6 +1,9 @@
 # Read in the librarys
 
 library(tidyverse)
+# install.packages("caTools")
+library(caTools)
+library(broom)
 
 # Read in the data
 energy <- read_csv('data/energy_consumption_by_sector_fuel.csv')
@@ -62,85 +65,82 @@ plot+
 
 ### Task: create a bar plot of consumption vs. year, coloured by Sector, faceted by fuel
 
+plot + facet_wrap(~Sector, scales = 'free_y',
+                  ncol=1)
+
 ### Task: use facet_grid() to create a line plot for each fuel and sector (see right)
 
+### Task: create a bar plot of consumption vs. year, coloured by Sector, faceted by fuel
+
+longer %>% 
+  ggplot() + 
+  geom_col(aes(x = Year, 
+               y = consumption,
+               fill = Sector)) +
+  facet_wrap(~fuel, scales = 'free_y')+
+  coord_flip()+
+  theme_bw()+
+  theme(rect=element_blank(),
+                   panel.grid = element_blank(),
+                   panel.background= element_blank(),
+                   plot.background = element_blank(),
+                   legend.position="top",
+                   axis.text.x=element_text(colour="orange"),
+                   axis.text.y=element_text(colour="black"),
+                   text = element_text(colour="blue"),
+                   axis.line.x.bottom=element_line(color="green"),
+                   axis.line.y.left=element_line(color="red")
+  )
 
 ### Task: replace facet_grid() with facet_wrap() and set the y scale to be free
 
+longer %>% 
+  ggplot() + 
+  geom_line(aes(x = Year, 
+                y = consumption)) +
+  facet_wrap(Sector ~ fuel, scales = 'fixed')
 
 # Exploratory Data analysis -----------------------------------------------
 
-library(tidyverse)
-# install.packages("caTools")
-library(caTools)
+df<-mpg %>% 
+  select(hwy,displ,cyl,drv)
+
+
 library(broom)
 ### Preparing the data
 
+df <- mpg %>% 
+  select(hwy, displ, cyl, drv, class) %>%
+  mutate_if(is.character, as.factor) # Convert the character variables to factors
+
+any(is.na(mpg))
 
 ### Splitting into train and test sets
 
+set.seed(123)
+
+split<-sample.split(df$hwy,0.75) # '1:nrow(df)' rempresents a vector
 #  'df$hwy' would also work
-
-
-# Matrix
-
-### Some exploratory analysis
-
-##### Categorical variables with boxplot
-
-##### Continuous variables with hexplot
-
-library(gridExtra)
-grid.arrange(plot1,plot2)
-
-#     This looks messy try put the legend on the left of the plot with theme(legend.position="left)
-# plot2<-df %>% 
-#   pivot_longer(displ:cyl) %>%
-#   ggplot() + 
-#   geom_hex(aes(x = value, y = hwy)) + 
-#   facet_wrap(~ name, scales = 'free')+
-#   theme(legend.position = "left")
-
-
-### Linear model fitting
-# Fit a linear model: predict hwy with all other variables
+train_data <-subset(df,split==TRUE)       #  Take 75% of the rows from df
+test_data <-subset(df,split==FALSE)       # All rows in df that are NOT in train
 
 
 
 
-# This function prints the model as a tidy data frame
 
 
 
-### Decision tree fitting
-library(rpart)
-library(rpart.plot)
-
-# Fit a decision tree: predict hwy with all other variables
 
 
-### Predictions on training set
 
 
-### Add residuals 
 
 
-### Plots residuals for training set 
 
 
-### Predictions on test set
 
 
-### Predicted vs. actual
 
-
-### Error metrics: MSE
-
-### Error metrics: RMSE
-
-### Error metrics: MAE
-
-### Accuracy metrics
 
 
 
