@@ -49,6 +49,10 @@ head(df)
 
 ### Plotting
 
+df_clean <- df %>%
+  select(Occupancy, Humidity, CO2, Temperature) %>%
+  mutate(Occupancy = as.factor(Occupancy))
+
 df %>% 
   filter(month(as_date(date)) == 2) %>% 
   ggplot(aes(x = date, y = Occupancy, fill = Occupancy)) + 
