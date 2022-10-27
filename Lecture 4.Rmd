@@ -109,6 +109,8 @@ conf_matrix <- table(test_pred$pred_class, test_pred$Occupancy) # True class (co
 
 conf_matrix
 
+conf_matrix / colSums(conf_matrix)
+
 
 ```
 
