@@ -103,7 +103,7 @@ test_pred <- test %>%
 
 classification_rate <- mean(test_pred$correct)
 print(classification_rate)
-
+plot(roc(test_pred$Occupancy, test_pred$pred), print.auc = TRUE)
 
 ```
 
