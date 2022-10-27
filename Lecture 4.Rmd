@@ -26,6 +26,20 @@ read_and_clean <- function(f){
   names(df) <- col_names
   return(df)
 }
+
+
+retrieve_data <- function(data_loc){
+  # Get a list of all the files in data_loc
+  files <- list.files(data_loc, full.names = TRUE)
+  
+  # Iterate through all files, applying the read_and_clean function
+  list_df <- map(files, read_and_clean) 
+  
+  # Bind together the data frames
+  df <- bind_rows(list_df)
+  
+  return(df)
+}
 ```
 
 ```
