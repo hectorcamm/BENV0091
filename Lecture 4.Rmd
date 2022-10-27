@@ -82,8 +82,17 @@ train %>%
 
 ```
 
-You can also embed plots, for example:
 
+
+```
+```{r}
+log_reg <- glm(Occupancy ~ ., data = train, family = 'binomial')
+
+
+test_pred <- test %>% 
+  mutate(pred = predict(log_reg, newdata = test, type = 'response'),
+         pred_class = as.integer(pred > 0.5),
+         correct = pred_class == Occupancy) 
 ```
 
 ```
