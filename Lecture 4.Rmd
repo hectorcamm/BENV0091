@@ -58,9 +58,21 @@ df %>%
   ggplot(aes(x = date, y = Occupancy, fill = Occupancy)) + 
   geom_line(size = 1, color = 'darkgreen') + 
   theme_bw()
+
+
 ```
 
 ## Including Plots
+```{r}
+
+set.seed(456)
+
+train_idx <- sample(1:nrow(df_clean), 0.8*nrow(df_clean))
+train <- df_clean[train_idx,]
+test <- df_clean[-train_idx,]
+
+
+```
 
 You can also embed plots, for example:
 
