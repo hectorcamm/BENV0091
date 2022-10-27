@@ -150,4 +150,26 @@ train %>%
 
 ```
 
+```{r}
+
+set.seed(2021)
+
+# Downsample the data
+train_downsampled <- train %>% 
+  downsample_by_occupancy() 
+
+# Function for standardising a data frame relative to training data 
+standardise_df <- function(df, training_df){
+  # For loop over columns
+  for (col in names(df)){
+    # Check if column is numeric (not applicable to character, factor etc.)
+    if (is.numeric(df[[col]])){
+      mu <- mean(training_df[[col]]) # mean of vector in training data
+      sigma <- sd(training_df[[col]]) # sd of vector in training data
+      df[[col]] <- (df[[col]] - mu) / sigma # standardise
+    }
+  }
+  return(df)
+}
+```
 
