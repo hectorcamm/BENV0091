@@ -19,7 +19,13 @@ library(broom)
 
 ```
 ```{r}
-
+read_and_clean <- function(f){
+  df <- read_csv(f, skip = 1) # Skip the first row
+  df <- df[,-1] # Remove the first column
+  col_names <- read_csv(f, n_max=0) %>% names() # Retrieve the column names as a separate csv file
+  names(df) <- col_names
+  return(df)
+}
 ```
 
 ```
