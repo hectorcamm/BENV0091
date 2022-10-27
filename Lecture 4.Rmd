@@ -175,3 +175,41 @@ standardise_df <- function(df, training_df){
 train_stand <- standardise_df(train_downsampled, train_downsampled)
 ```
 
+
+```{r}
+train_stand <- standardise_df(train_downsampled, train_downsampled)
+
+# Fit the model to the processed data
+log_reg <- glm(Occupancy ~ ., data = train_stand, family = 'binomial')
+
+# Standardise the test data, with reference to the (downsampled) training data
+test_stand <- standardise_df(test, train_downsampled)
+
+# Add predictions
+test_stand <- test_stand %>% 
+  mutate(pred = predict(log_reg, newdata = test_stand, type = 'response'),
+         pred_class = as.integer(pred > 0.5),
+         correct = pred_class == Occupancy)
+
+# Create confusion matrix
+conf_matrix <- table(test_stand$pred_class, test_stand$Occupancy) 
+conf_matrix / colSums(conf_matrix)
+
+classification_rate <- mean(test_stand$correct)
+print(classification_rate)
+
+# Plot the ROC
+plot(roc(test_stand$Occupancy, test_pred$pred), print.auc = TRUE)
+
+# Plot the coefficients
+tidy(log_reg) %>% 
+  ggplot(aes(x = term, 
+             y = estimate, 
+             ymin = estimate - std.error,
+             ymax = estimate + std.error)) + 
+  geom_pointrange()
+
+
+
+```
+
