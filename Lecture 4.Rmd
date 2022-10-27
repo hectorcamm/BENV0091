@@ -43,6 +43,18 @@ retrieve_data <- function(data_loc){
 ```
 
 ```
+```{r}
+# Show first few rows
+head(df)
+
+### Plotting
+
+df %>% 
+  filter(month(as_date(date)) == 2) %>% 
+  ggplot(aes(x = date, y = Occupancy, fill = Occupancy)) + 
+  geom_line(size = 1, color = 'darkgreen') + 
+  theme_bw()
+```
 
 ## Including Plots
 
