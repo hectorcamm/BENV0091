@@ -72,6 +72,14 @@ train <- df_clean[train_idx,]
 test <- df_clean[-train_idx,]
 
 
+train %>%
+  pivot_longer(Humidity:Temperature,
+               names_to = 'variable') %>% 
+  ggplot(aes(x = Occupancy, y = value)) + 
+  geom_boxplot() + 
+  facet_wrap(~variable, scales = 'free_y')
+
+
 ```
 
 You can also embed plots, for example:
