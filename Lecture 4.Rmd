@@ -171,5 +171,7 @@ standardise_df <- function(df, training_df){
   }
   return(df)
 }
+
+train_stand <- standardise_df(train_downsampled, train_downsampled)
 ```
 
