@@ -93,7 +93,17 @@ test_pred <- test %>%
   mutate(pred = predict(log_reg, newdata = test, type = 'response'),
          pred_class = as.integer(pred > 0.5),
          correct = pred_class == Occupancy) 
+         
+         
+         
 ```
+
+```
+```{r}
+
+classification_rate <- mean(test_pred$correct)
+print(classification_rate)
+
 
 ```
 
