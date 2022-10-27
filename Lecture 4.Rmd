@@ -143,6 +143,11 @@ downsample_by_occupancy <- function(df){
   return(downsampled_df)
 }
 
+
+train %>% 
+  downsample_by_occupancy() %>% 
+  count(Occupancy)
+
 ```
 
 
