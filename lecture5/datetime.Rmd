@@ -1,0 +1,41 @@
+---
+title: "Dates and Times"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(lubridate)
+```
+
+### Convert the following to Dates/Times
+
+```{r}
+f <- 'March 3rd 2003'
+mdy(f)
+f <- '14.11.2030 16:00:00'
+dmy_hms(f)
+f <- 'Tuesday 2nd August 1966 7:30pm'
+dmy_hm(f)
+```
+
+### Calculate the time 123456789 seconds from now
+
+```{r}
+now() + seconds(123456789)
+```
+
+### Create a date-time variable for 1st April 1980 5am with the UTC time zone, then convert
+
+```{r}
+f <- '1st April 1980 5am'
+d <- dmy_h(f)
+print(with_tz(d, tz = 'Europe/London'))
+print(with_tz(d, tz = 'Asia/Tokyo'))
+print(with_tz(d, tz = 'America/Los_Angeles'))
+```

@@ -1,0 +1,95 @@
+---
+title: "Oil Price"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(zoo)
+library(lubridate)
+```
+
+### Read data: check sheet names
+
+```{r}
+f <- 'data/PET_PRI_SPT_S1_D.xls'
+
+excel <- read_excel(f)
+excel_sheets(f)
+```
+
+### Read data: choose the correct sheet
+
+```{r}
+df <- read_excel(f, sheet = 'Data 1', skip = 2) 
+names(df) <- c('date', 'WTI', 'Brent') # rename columns
+```
+
+### Count the number of NAs in the WTI column
+
+```{r}
+sum(is.na(df$WTI))
+```
+
+### Plot missing data
+
+```{r}
+missing_data <- df %>% 
+  mutate(WTI_NA = is.na(WTI)) %>% 
+  filter(WTI_NA) %>% 
+  transmute(start_date = date,
+            end_date = date + days(1))
+
+ggplot() + 
+  geom_rect(data = missing_data,
+            mapping = aes(xmin = start_date,
+                          xmax = end_date,
+                          ymin = -Inf,
+                          ymax = Inf),
+            color = 'gray70',
+            alpha = 0.9) + 
+  geom_line(data = df, 
+            mapping = aes(x = date, y = WTI),
+            color = 'blue') + 
+  geom_hline(yintercept = 0, 
+             linetype = 'dashed',
+             color = 'black') + 
+  theme_light() + 
+  labs(title = 'WTI Oil Price',
+       subtitle = 'Missing data is highlighted in grey')
+```
+
+### Fill NAs in WTI oil price 
+
+```{r}
+df_clean <- df %>% 
+  mutate(WTI = na.approx(WTI))
+ 
+map(df_clean, ~sum(is.na(.))) # verifying no NAs remain 
+```
+
+### Upsample WTI oil price to half-hourly resolution
+
+```{r}
+# Create a data frame with the target date-time frequency (half-hour resolution)
+hh_df <- tibble(date = seq(df_clean$date[1],
+                           tail(df_clean$date, 1) + days(1),
+                           '30 mins')) 
+
+# Join the two dfs 
+df_clean_upsample <- left_join(hh_df, df_clean)
+```
+
+### Impute the WTI
+
+```{r}
+df_clean_upsample <- df_clean_upsample %>% 
+  mutate(WTI = na.locf(WTI))
+```
+
+

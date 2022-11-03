@@ -1,0 +1,226 @@
+---
+title: "Renewables Ninja"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(rpart)
+library(randomForest)
+```
+
+### Reading the data
+
+```{r}
+ninja <- read_csv('data/ninja_IOE_solar_pv.csv', skip = 3)
+```
+
+### Date time conversions
+
+```{r}
+ninja <- ninja %>%
+  mutate(date = lubridate::date(time),
+         week = lubridate::week(time),
+         hour = lubridate::hour(time)) 
+```
+
+### Plot mean electricity production by hour
+
+```{r}
+ninja %>% 
+  ggplot(aes(x = hour, y = electricity)) + 
+  stat_summary(geom = 'bar',
+               fun = mean,
+               fill = '#E69F00') + 
+  stat_summary(geom = 'errorbar',
+               fun.min = min,
+               fun.max = max, 
+               alpha = 0.5) + 
+  theme_minimal()
+```
+
+### Autocorrelation plot 
+
+```{r}
+acf(ninja$electricity, lag.max = 96)
+```
+
+
+### Splitting test/train
+
+```{r}
+train <- ninja %>% filter(lubridate::month(time) < 10)
+test <- ninja %>% filter(lubridate::month(time) >= 10)
+```
+
+
+### Sin and Cos Transforms of Week and Hour
+
+```{r}
+train %>% 
+  mutate(sinweek = sin(2 * pi * week / 52),
+         cosweek = cos(2 * pi * week / 52)) %>% 
+  ggplot(aes(x  = sinweek, y = cosweek)) + 
+  geom_point()
+```
+
+```{r}
+train %>% 
+  mutate(sinhour = sin(2 * pi * hour / 24),
+         coshour = cos(2 * pi * hour / 24)) %>% 
+  ggplot(aes(x  = sinhour, y = coshour)) + 
+  geom_point() + 
+  theme_light()
+```
+
+### Pre-Process Data
+
+```{r}
+prep_df <- function(df){
+  df %>% 
+    transmute(time, 
+              electricity = electricity,
+              electricity_24 = lag(electricity, 24),
+              sinhour = sin(2 * pi * hour / 24),
+              coshour = cos(2 * pi * hour / 24),
+              sinweek = sin(2 * pi * week / 52),
+              cosweek = cos(2 * pi * week / 52),
+              temperature_24 = lag(temperature, 24),
+              irradiance_direct_24 = lag(irradiance_direct, 24),
+              irradiance_diffuse_24 = lag(irradiance_diffuse, 24)) 
+}
+
+train_prep <- prep_df(train) %>% drop_na()
+test_prep <- prep_df(test)
+```
+
+### Fit models
+
+```{r}
+linear_model <- lm(electricity ~ . - time, train_prep)
+decision_tree <- rpart(electricity ~ . - time, train_prep,
+                       minsplit = 10)
+random_forest <- randomForest(electricity ~ . - time, 
+                              data = train_prep,
+                              ntree = 200)
+```
+
+### Calculate RMSE (training data)
+
+```{r}
+rmse <- function(actual, predicted){
+  mse <- mean((actual - predicted) ** 2)
+  return(sqrt(mse))
+}
+
+train_preds <- train_prep %>% 
+  transmute(
+        time,
+        actual = electricity,
+        persistence = electricity_24,
+        linear_model = predict(linear_model, .),
+        decision_tree = predict(decision_tree, .),
+        random_forest = predict(random_forest, .))
+
+train_preds %>% 
+  pivot_longer(persistence:random_forest) %>% 
+  group_by(name) %>% 
+  summarise(rmse = rmse(actual, value))
+```
+
+
+### Plot predicted vs. actual
+
+```{r}
+train_preds %>% 
+  right_join(train, by = 'time') %>% 
+  pivot_longer(persistence:random_forest,
+               names_to = 'model') %>% 
+  ggplot(aes(x = electricity, 
+             y = value, 
+             color = as.factor(lubridate::quarter(time)))) + 
+  geom_point(size = 0.4, alpha = 0.7) + 
+  geom_abline(intercept = 0, slope = 1, color = 'blue') +
+  facet_wrap(~model) + 
+  theme_light() + 
+  labs(x = 'Actual',
+       y = 'Predicted', 
+       color = 'Quarter')
+
+```
+
+### Plot residuals for random forest
+
+```{r}
+random_forest_df <- train_prep %>% 
+  drop_na() %>% 
+  mutate(random_forest = predict(random_forest, .),
+         residual = random_forest - electricity) 
+
+random_forest_df %>%
+  ggplot(aes(x = time, y = residual)) + 
+  geom_point(size = 0.7, alpha = 0.5) + 
+  geom_smooth(method = 'loess') + 
+  theme_light() + 
+  labs(title = 'Residuals of Random Forest model')
+```
+
+### Autocorrelation of residuals
+
+```{r}
+acf(random_forest_df$residual, lag.max = 24)
+```
+
+
+### Test predictions 
+
+```{r}
+preds_df <- test_prep %>% 
+  mutate(linear_model = predict(linear_model, test_prep),
+            decision_tree = predict(decision_tree, test_prep),
+            random_forest = predict(random_forest, test_prep),
+            persistence = electricity_24)
+```
+
+### Function for plotting random day
+
+```{r}
+
+plot_random_day <- function(model_name){
+  # Sample a random date
+  random_date <- sample(unique(date(preds_df$time)), 1)
+
+  preds_df %>% 
+    filter(date(time) == random_date) %>% # filter to the date
+    select(time, electricity, model_name) %>% # select specified model and the actual values
+    pivot_longer(electricity:model_name) %>% # pivot  
+    ggplot(aes(x = time, y = value, color = name)) + 
+    geom_line() + 
+    theme_light()
+}
+
+plot_random_day('linear_model')
+
+
+```
+
+
+### Calculate RMSE (test)
+
+```{r}
+preds_df %>% 
+  drop_na() %>%
+  pivot_longer(linear_model:persistence,
+               names_to = 'model') %>% 
+  group_by(model) %>% 
+  summarise(rmse = rmse(electricity, value))
+```
+
+
+
