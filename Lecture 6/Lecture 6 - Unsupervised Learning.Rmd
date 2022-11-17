@@ -97,3 +97,44 @@ pcs <- df_transform %>%
 # Tidy! 
 tidy_pcs <- tidy(pcs)
 ```
+
+
+### Scree plot
+
+```{r}
+plot(pcs)
+```
+
+
+### Plot first 2 principal components
+
+```{r}
+pcs_2 <- tidy_pcs %>%
+  filter(PC <= 2) %>% 
+  pivot_wider(id_cols = row, 
+              names_from = PC)
+
+pcs_2 %>%
+  ggplot(aes(x = `1`, y = `2`)) +
+  geom_point() 
+```
+
+```{r}
+set.seed(123)
+
+k <- 3
+
+clusters <- tidy_pcs %>%
+  filter(PC <= 2)%>%
+    pivot_wider(id_cols = row, 
+              names_from = PC)%>%
+  select(-row)%>%
+  kmeans(k)
+
+pcs_2_clusters <- pcs_2 %>%
+  mutate(cluster = as.factor(clusters$cluster))
+`
+```
+
+
+
