@@ -1,0 +1,26 @@
+---
+title: "Lecture 6"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+The data show metered electricity usage (kW) for 370 customers.
+
+This data can be accessed at https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(broom)
+```
+
+### Set theme for plots 
+
+```{r}
+theme_set(theme_light())
+```
