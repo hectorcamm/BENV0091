@@ -81,4 +81,19 @@ for (i in 1:nrow(df_transform)){
   min_value <- min(df_transform[i,-1])
   df_transform[i,-1] <- (df_transform[i,-1] - min(df_transform[i,-1])) / (max_value - min_value)
 }
+
+df_transform
+```
+
+
+### Calculate the principal components 
+
+```{r}
+pcs <- df_transform %>% 
+  select(-customer) %>% # remove non-numeric columns
+  scale() %>% # standardise the data
+  prcomp()
+
+# Tidy! 
+tidy_pcs <- tidy(pcs)
 ```
