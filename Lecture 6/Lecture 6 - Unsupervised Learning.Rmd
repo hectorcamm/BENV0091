@@ -40,3 +40,45 @@ f <- 'data/LD2011_2014.txt'
 df <- read_csv2(f) # data is separated by semi-colons, comma for decimals
 names(df)[1] <- 'timestamp'
 ```
+
+
+```{r}
+# Clean data and reduce to Q3 and Q4
+df_short <- df %>% 
+  mutate(timestamp = ymd_hms(timestamp),
+         hour = hour(timestamp),
+         wday = wday(timestamp)) %>% # note that 1 --> Sunday, 2 --> Monday etc.
+  filter(quarter(timestamp) %in% c(3,4)) %>%
+  mutate_if(is.character, as.numeric)
+```
+
+
+### Confirm no columns have 0 variance
+
+```{r}
+(map_dbl(df_short, ~sd(.)) == 0) %>% sum()
+```
+
+### Transform: row for each customer, column for each wday/hour
+
+```{r}
+df_transform <- df_short %>% 
+  pivot_longer(-c(timestamp, hour, wday),
+               names_to = 'customer',
+               values_to = 'kW') %>% 
+  group_by(customer, wday, hour) %>%
+  summarise(mean_kW = mean(kW)) %>%
+  pivot_wider(names_from = c(wday, hour), 
+              values_from = mean_kW) %>%
+  ungroup()
+```
+
+### Normalise rows
+
+```{r}
+for (i in 1:nrow(df_transform)){
+  max_value <- max(df_transform[i,-1])
+  min_value <- min(df_transform[i,-1])
+  df_transform[i,-1] <- (df_transform[i,-1] - min(df_transform[i,-1])) / (max_value - min_value)
+}
+```
