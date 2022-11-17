@@ -201,3 +201,55 @@ mean_power %>%
   labs(subtitle = 'Line shows mean power (kW)\nRibbon shows inter-quartile range')
   
 ```
+
+
+
+
+
+---
+title: "Model Selection"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(boot)
+```
+
+### Pre-process data
+
+```{r}
+f <- 'data/vw_train.csv'
+train <- read_csv(f) %>% 
+  drop_na() %>%
+  mutate(washer_dryer = as.factor(
+    if_else(str_detect(appliances, 'washer_dryer'), 1, 0)
+    ))
+
+colnames(train)
+
+# Defining formulae to try
+formulae <- c('washer_dryer ~ activePower + transient1',
+              'washer_dryer ~ activePower + transient1 + transient2',
+              'washer_dryer ~ current * voltage + transient1',
+              'washer_dryer ~ activePower + current + voltage')
+
+# K-fold CV 
+errors <- numeric()
+for (f in formulae){
+  fit <- glm(as.formula(f), family = 'binomial', data = train)
+  cv_fit <- cv.glm(train, fit, K = 10)
+  errors <- c(errors, cv_fit$delta[1])
+}
+
+# Print the best formula
+best_f <- formulae[which.min(errors)]
+print(best_f)
+
+```
