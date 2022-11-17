@@ -138,3 +138,66 @@ pcs_2_clusters <- pcs_2 %>%
 
 
 
+### Elbow plot
+
+```{r}
+set.seed(123)
+
+ks <- 2:20
+vs <- numeric()
+for (k in ks){
+  cls <- tidy_pcs %>%
+  filter(PC <= 2) %>% 
+    pivot_wider(id_cols = row, 
+                names_from = PC) %>%
+    select(-row) %>% 
+    kmeans(k)
+  vs <- c(vs, cls$tot.withinss)
+}
+
+plot(ks, vs, type = 'b', xlab = 'k', ylab = 'Total within-cluster sum of squares')
+
+```
+
+
+```{r}
+# Add clusters to original time series
+df_clusters <- df_transform %>% 
+  mutate(cluster = as.factor(clusters$cluster))
+
+# Pivot the data
+df_clusters_pivot <- df_clusters %>%
+  pivot_longer(contains('_')) %>% 
+  group_by(customer) %>%
+  mutate(index = row_number())
+
+# Adding weekday and hour columns in order to facet_wrap on weekday
+wday_hour <- str_split(df_clusters_pivot$name, '_', simplify=TRUE)
+df_clusters_pivot$wday <- as.factor(wday_hour[,1])
+df_clusters_pivot$hour <- as.integer(wday_hour[,2])
+``` 
+
+
+
+### Plot the mean consumption profiles for each cluster
+
+```{r}
+mean_power <- df_clusters_pivot %>% 
+  group_by(cluster, wday, hour) %>% 
+  summarise(mean_power = mean(value),
+            upper = quantile(value, 0.75),
+            lower = quantile(value, 0.25))
+
+mean_power %>% 
+  ggplot(aes(x = hour, 
+             y = mean_power, 
+             ymin = lower,
+             ymax = upper,
+             fill = cluster,
+             colour = cluster)) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.2, color = NA) + 
+  facet_wrap(~wday) +
+  labs(subtitle = 'Line shows mean power (kW)\nRibbon shows inter-quartile range')
+  
+```
