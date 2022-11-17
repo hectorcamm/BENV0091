@@ -24,3 +24,19 @@ library(broom)
 ```{r}
 theme_set(theme_light())
 ```
+
+### Read data
+
+The data uses a slightly unusual format where:  
+
+1. columns are separated by semi-colons
+2. decimal points are given by commas
+
+This format can be read with `read_csv2()`. 
+
+```{r}
+f <- 'data/LD2011_2014.txt'
+
+df <- read_csv2(f) # data is separated by semi-colons, comma for decimals
+names(df)[1] <- 'timestamp'
+```
