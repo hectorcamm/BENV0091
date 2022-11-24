@@ -1,0 +1,11 @@
+name: shiny_framework
+title:
+username:
+account: ensembleanalytics
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7722863
+bundleId: 6550506
+url: https://ensembleanalytics.shinyapps.io/shiny_framework/
+when: 1669290239.60297
+lastSyncTime: 1669290239.60298
