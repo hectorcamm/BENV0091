@@ -148,11 +148,10 @@ result
 
 ```
 
-```
 
 ```{r}
 
-
+url <- sprintf('http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/sitelist?key=%s', api_key)
 
 ```
 
