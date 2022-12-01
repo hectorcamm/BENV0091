@@ -4,6 +4,54 @@ output:
   html_document:
     df_print: paged
 editor_options:
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
+
+
+
+```{r}
+
+library(tidyverse)
+
+myname <- "cato"
+
+paste("My name is",myname)
+
+```
+
+```{r}
+
+x <- seq(-5, 5, 0.01)
+y <- -5*x**2 + x + 3 
+df <- tibble(x = x, y = y)
+
+title <- paste0("The maximum y-value of the curve is: \n", max(y))
+
+ggplot(df, aes(x = x, y = y)) + 
+  geom_line() + 
+  labs(title = title)
+
+```
+
+```{r}
+vals <- rnorm(1000)
+
+sprintf('The mean is %.3f and the standard deviation is %.3f', mean(vals), sd(vals))
+```
+
+
+```{r}
+
+library(httr)
+library(jsonlite)
+library(tidyverse)
+library(lubridate)
+
+
+```
+
+
+```{r}
+'https://api.carbonintensity.org.uk/intensity'
+```
 
