@@ -25,7 +25,7 @@ x <- seq(-5, 5, 0.01)
 y <- -5*x**2 + x + 3 
 df <- tibble(x = x, y = y)
 
-title <- paste0("The maximum y-value of the curve is: \n", max(y))
+title <- paste0("The maximum y-value of the curve is: \n",max(y))
 
 ggplot(df, aes(x = x, y = y)) + 
   geom_line() + 
@@ -67,7 +67,44 @@ class(parsed)
 
 ```
 ```{r}
+print(names(parsed$data))
+print(names(parsed$data$intensity))
+```
 
+We can use `unnest()` to flatten this to a single, unnest data frame wiht 5 columns.
+
+```{r}
+# Unnest the intensity data 
+df <- parsed$data %>% unnest(cols = intensity)
+df
+```
+```{r}
+get_carbon_intensity <- function(){
+  r <- GET('https://api.carbonintensity.org.uk/intensity')
+  parsed <- fromJSON(content(r, 'text'))
+  df <- parsed$data %>% unnest(cols = intensity)
+  return(df)
+}
+
+
+get_carbon_intensity()
+
+```
+```{r}
+date1 <- "2020-10-08"
+date2 <- "2020-10-09"
+co2_intensity_data <- function(date1,date2){
+  #url <- sprintf('https://api.carbonintensity.org.uk/intensity/%s/%s',date1,date2)
+  url <- paste0('https://api.carbonintensity.org.uk/intensity/',date1,"/",date2)
+  r <- GET(url)
+  parsed <- fromJSON(content(r, 'text'))
+  df <- parsed$data %>% unnest(cols = intensity)
+  return(df)
+  
+}
+
+
+co2_intensity_data("2021-01-01","2021-01,08")
 
 
 ```
