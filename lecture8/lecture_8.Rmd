@@ -52,6 +52,23 @@ library(lubridate)
 
 
 ```{r}
-'https://api.carbonintensity.org.uk/intensity'
+r <- GET('https://api.carbonintensity.org.uk/intensity')
+names(r)
+r
+```
+
+```{r}
+
+# Parse the results from JSON 
+parsed <- fromJSON(content(r, 'text'))
+
+class(parsed)
+
+
+```
+```{r}
+
+
+
 ```
 
