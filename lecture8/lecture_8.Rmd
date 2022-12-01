@@ -172,8 +172,52 @@ r <- GET(url)
 
 data <- fromJSON(content(r, 'text'))
 
+data$SiteRep$Wx$Param
 
+data$SiteRep$DV$Location$Period$Rep
+# Create an empty vector to store the results
+forecast <- numeric()
+for (df in data$SiteRep$DV$Location$Period$Rep){
+  forecast <- c(forecast, as.integer(df$S))
+}
+
+
+qplot(1:length(forecast), forecast, geom = 'line') + 
+  labs(x = "Horizon (3hr intervals)",
+       y = "Wind Speed (mph)")
+```
+
+
+### Retrieving the Feels Like Temperature (F) for tomorrow at midday
+
+An additional query parameter can be added to the URL specifiying a time if we just want the forecast for one period. The code below uses this request to get the Feels Like Temperature (F) for tomorrow at midday. **Note: the forecasts are only available at 3 hour intervals, so forecasts only exist for 0, 3, 6,..., 21h. It is not possible to retrieve a forecast for 1am!** 
+
+First, we must define the time we want to request for: we will use lubridate period functions (`days()` and `hours()`) for this:
+
+
+
+```{r}
+# Specify time to get forecast and convert to ISO 8601 format (lubridate)
+time <- (today() + days(1) + hours(12)) %>% # Time tomorrow at midday
+  format_ISO8601() 
+
+
+
+# Specify location ID 
+location_id <- '352205'
+
+# Putting together the URL
+url <- sprintf('http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/%s?res=3hourly&time=%s&key=%s', location_id, time, API_KEY)
+
+# Making the request and parsing
+r <- GET(url)
+data <- fromJSON(content(r, 'text'))
+
+# Retrieve the Feels Like Temperature
+feels_like_temp <- data$SiteRep$DV$Location$Period$Rep$F
+print(sprintf("The feels like temperature at 12:00 tomorrow will be: %sC", feels_like_temp))
 
 
 ```
+
 
