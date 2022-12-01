@@ -1,0 +1,13 @@
+name: electric_insights_app
+title: electric_insights_app
+username:
+account: ensembleanalytics
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7723229
+bundleId: 6550647
+url: https://ensembleanalytics.shinyapps.io/electric_insights_app/
+when: 1669293283.58713
+lastSyncTime: 1669293283.58714
+asMultiple: FALSE
+asStatic: FALSE
