@@ -153,6 +153,11 @@ result
 
 url <- sprintf('http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/sitelist?key=%s', api_key)
 
+
+r <- GET(url)
+
+sitelist <- fromJSON(content(r, 'text')) 
+sitelist <- sitelist$Locations$Location %>% tibble()
 ```
 
 
