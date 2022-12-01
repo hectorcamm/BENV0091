@@ -160,4 +160,20 @@ sitelist <- fromJSON(content(r, 'text'))
 sitelist <- sitelist$Locations$Location %>% tibble()
 ```
 
+```{r}
+
+sitelist %>% filter(name == "Land's End")
+
+location_id <- '352205'
+
+url <- sprintf('http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/%s?res=3hourly&key=%s', location_id, API_KEY)
+
+r <- GET(url)
+
+data <- fromJSON(content(r, 'text'))
+
+
+
+
+```
 
