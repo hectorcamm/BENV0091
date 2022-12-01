@@ -103,9 +103,57 @@ co2_intensity_data <- function(date1,date2){
   
 }
 
-
 co2_intensity_data("2021-01-01","2021-01,08")
 
 
 ```
+```{r}
+
+avg_carbon_intensity_past_week <- function(){
+  d1 <- today()-days(7)
+  d2 <- today()
+  
+  data <- co2_intensity_data(d1,d2)
+  
+  return(mean(data$actual))
+  
+}
+
+avg_carbon_intensity_past_week()
+
+```
+```{r}
+max_co2_intensity_past_week <- function(){
+    # Date 7 days ago
+  d1 <- today() - days(7)
+  d2 <- today()
+  
+  # Request and parse data
+  data <- co2_intensity_data(d1, d2)
+  
+  # The maximum intensity
+  max_intensity <- max(data$actual)
+  
+  # Filter the data and extract the period of maximum intensity
+  # (we use the beginning of the period (`from`))
+  max_period <- data %>% 
+    filter(actual == max_intensity) %>% 
+    pull(from)
+    
+  return(c(max_intensity, max_period))
+}
+
+result <- max_co2_intensity_past_week()
+result
+
+```
+
+```
+
+```{r}
+
+
+
+```
+
 
